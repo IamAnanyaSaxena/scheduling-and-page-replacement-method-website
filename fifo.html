@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFO Page Replacement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F5F9E9; /* Light green background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 {
+            color: #2C3E50; /* Dark text */
+        }
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: #FADBD8; /* Light pink background */
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #34495E; /* Dark border */
+            border-radius: 4px;
+        }
+        .input-group button {
+            padding: 10px 20px;
+            background-color: #FF8383; /* Soft red */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .input-group button:hover {
+            background-color: #E57373; /* Light red on hover */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #FF8383; /* Soft red */
+            color: white;
+        }
+        .output {
+            margin-top: 20px;
+        }
+        .frame {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .frame .label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .frame div.page {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #34495E; /* Dark border */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-color: #FFFFFF; /* White background for pages */
+        }
+        .frame div.page.miss {
+            background-color: #F8D7DA; /* Light red for page misses */
+            color: #721C24; /* Dark red text */
+        }
+    </style>
+</head>
+<body>
+    <h1>FIFO Page Replacement</h1>
+    <div class="container">
+        <div class="input-group">
+            <input type="number" id="frameSize" placeholder="Frame Size">
+            <input type="text" id="referenceString" placeholder="Reference String (comma-separated)">
+            <button onclick="simulateFIFO()">Simulate FIFO</button>
+        </div>
+        <div class="output">
+            <h3>Simulation Result:</h3>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function simulateFIFO() {
+            const frameSize = parseInt(document.getElementById("frameSize").value);
+            const referenceString = document.getElementById("referenceString").value
+                .split(",")
+                .map(num => parseInt(num.trim()));
+
+            if (isNaN(frameSize) || frameSize <= 0 || referenceString.some(isNaN)) {
+                alert("Please enter valid frame size and reference string.");
+                return;
+            }
+
+            let frames = [];
+            let pageFaults = 0;
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "";
+
+            referenceString.forEach((page, index) => {
+                const frameDiv = document.createElement("div");
+                frameDiv.className = "frame";
+
+                const label = document.createElement("div");
+                label.className = "label";
+                label.textContent = `Step ${index + 1}: Page ${page}`;
+                frameDiv.appendChild(label);
+
+                if (!frames.includes(page)) {
+                    pageFaults++;
+                    if (frames.length >= frameSize) {
+                        frames.shift(); // Remove the oldest page
+                    }
+                    frames.push(page);
+                }
+
+                frames.forEach(frame => {
+                    const pageDiv = document.createElement("div");
+                    pageDiv.className = "page";
+                    pageDiv.textContent = frame;
+                    frameDiv.appendChild(pageDiv);
+                });
+
+                resultDiv.appendChild(frameDiv);
+            });
+
+            const summary = document.createElement("p");
+            summary.textContent = `Total Page Faults: ${pageFaults}`;
+            resultDiv.appendChild(summary);
+        }
+    </script>
+</body>
+</html>
